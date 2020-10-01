@@ -2,7 +2,7 @@
   <mat-card class="example-card grey-box align-center">
       <mat-card-title *ngIf="hasRSRequest && isChangeable">Detected request for {{citationTypeCode ==='BK' ? 'a' : 'an'}} {{ citationTypeMap.get(citationTypeCode) }}</mat-card-title>
       <mat-card-title *ngIf="!hasRSRequest">Select a resource sharing request</mat-card-title>
-      <mat-card-title *ngIf="hasRSRequest && !isChangeable">Resource sharing request ststus is  <br/> `{{apiResult['status']['desc'] }}` <br/> can't be changed</mat-card-title>   
+      <mat-card-title *ngIf="hasRSRequest && !isChangeable && apiResult['status']">Resource sharing request ststus is  <br/> `{{apiResult['status']['desc'] }}` <br/> can't be changed</mat-card-title>   
   </mat-card>
 </section>
 

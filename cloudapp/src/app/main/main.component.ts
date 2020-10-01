@@ -95,7 +95,6 @@ export class MainComponent implements OnInit, OnDestroy {
   changeType(){
       this.changeLog = "Log: \n\n";
       this.loading = true;
-      this.hasChangeResults = true;
       var deleteUrl ;
       if(this.apiResult['user_request']['link']){
         deleteUrl = this.apiResult['user_request']['link'];
@@ -114,7 +113,7 @@ export class MainComponent implements OnInit, OnDestroy {
       }
       this.changeLog = this.changeLog + "\nDeleted old request (" + this.apiResult['request_id'] + ")\n";
       console.log(this.changeLog);
-
+      this.hasChangeResults = true;
 
       // call post request 
       var url = this.link.split('/').slice(0, -1).join('/');
@@ -131,8 +130,11 @@ export class MainComponent implements OnInit, OnDestroy {
           console.log('after hasApiResult');
           console.log('delete the old request');
           this.sendDeleteRequest(deleteUrl);
+        }else{
+          console.log('not deleting old request');
+          this.loading = false;
         }
-      });
+      })();
   }
   
   
@@ -150,7 +152,7 @@ export class MainComponent implements OnInit, OnDestroy {
   changeToArticle(value: any) {
     value['citation_type']['value'] = 'CR';
     this.changeLog = this.changeLog + "BK -> CR\n";
-    this.changeLog = this.changeLog + "Created new request (request_id)\n";
+    this.changeLog = this.changeLog + "Creating new request ...\n";
     value['issn'] = value['isbn'];
     value['isbn'] = "";
     this.changeLog = this.changeLog + "isbn: "+value['issn']+" -> issn\n";
@@ -171,7 +173,7 @@ export class MainComponent implements OnInit, OnDestroy {
   changeToBook(value: any) {
     value['citation_type']['value'] = 'BK';
     this.changeLog = this.changeLog + "CR -> BK\n";
-    this.changeLog = this.changeLog + "Created new request (request_id)\n";
+    this.changeLog = this.changeLog + "Creating new request ...\n";
     value['isbn'] = value['issn'];
     value['issn'] = "";
     this.changeLog = this.changeLog + "issn: "+value['isbn']+" -> isbn\n";
@@ -213,17 +215,17 @@ export class MainComponent implements OnInit, OnDestroy {
         console.log(this.apiResult);
       
         // replace new id with request_id
-        this.changeLog = this.changeLog.replace('request_id',this.apiResult['request_id']);
+        this.changeLog = this.changeLog.replace('Creating new request ...','Created new request (' + (this.apiResult['request_id']) + ')');
         console.log(this.changeLog);
         this.hasApiResult = true;
-          
+        console.log('finished creating request');  
       },
       error: (e: RestErrorResponse) => {
         this.apiResult = {};
         console.log("Failed to create resource sharing request");
         this.toastr.error('Failed to create resource sharing request');
         console.error(e);
-        this.changeLog = this.changeLog.replace('request_id','Failed');
+        this.changeLog = this.changeLog.replace('Creating new request ...','Failed creating new request');
         this.hasApiResult = true;
         this.loading = false;
       }
@@ -255,6 +257,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
   async delay(ms: number) {
     return new Promise( resolve => setTimeout(resolve, ms) );
-}
+  }
 
 }
