@@ -1,0 +1,18 @@
+{
+   "id": "Change RS request type",
+   "title": "Change RS request type",
+   "description": "changing a 'book request' to 'article request' and vice versa",
+   "subtitle": "Allows changing a 'book request' to 'article request' and vice versa.",
+   "author": "Yehudit Adler",
+   "entities": [
+      "BORROWING_REQUEST"
+   ],
+   "icon": {
+      "type": "font",
+      "value": "fa fa-exchange"
+   },
+   "fullscreen": {
+      "allow": true,
+      "open": false
+   }
+}
