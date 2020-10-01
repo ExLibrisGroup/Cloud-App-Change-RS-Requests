@@ -65,6 +65,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   onPageLoad = (pageInfo: PageInfo) => {
+    this.loading = false;
     this.isChangeable = false;
     this.hasChangeResults = false;
     this.changeLog = "";
@@ -75,6 +76,7 @@ export class MainComponent implements OnInit, OnDestroy {
       if(entity.type === 'BORROWING_REQUEST'){
         this.hasRSRequest = true;
         this.link = entity.link;
+        console.log('Sending API GET request ' + this.link );
         this.restService.call(entity.link).subscribe(result => {
           this.apiResult = result;
           this.citationTypeCode = result['citation_type']['value'];
@@ -94,15 +96,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
   changeType(){
       this.changeLog = "Log: \n\n";
-      this.loading = true;
-      var deleteUrl ;
-      if(this.apiResult['user_request']['link']){
-        deleteUrl = this.apiResult['user_request']['link'];
-      }else{
-        deleteUrl = this.link.split('/').slice(0, -2).join('/') + "/requests/" + this.apiResult['request_id'];
-      }
-        
-      
+      this.loading = true; 
+      this.hasChangeResults = true;
       const postBody = { ...this.apiResult }
       
       this.deleteExtraFields(postBody);
@@ -113,7 +108,7 @@ export class MainComponent implements OnInit, OnDestroy {
       }
       this.changeLog = this.changeLog + "\nDeleted old request (" + this.apiResult['request_id'] + ")\n";
       console.log(this.changeLog);
-      this.hasChangeResults = true;
+      
 
       // call post request 
       var url = this.link.split('/').slice(0, -1).join('/');
@@ -121,7 +116,7 @@ export class MainComponent implements OnInit, OnDestroy {
       this.sendCreateRequest({ url, requestBody: postBody});
       // wait for post
       (async () => { 
-        while (!this.hasApiResult) { // The loop is not for pooling. It receives the change event passively.
+        while (!this.hasApiResult) { // The loop is not for waiting for post request to end.
           console.log('before hasApiResult');
           await this.delay(1000);
         }
@@ -129,7 +124,7 @@ export class MainComponent implements OnInit, OnDestroy {
           //delete the old request
           console.log('after hasApiResult');
           console.log('delete the old request');
-          this.sendDeleteRequest(deleteUrl);
+          this.sendDeleteRequest(this.link + '?remove_request=true');
         }else{
           console.log('not deleting old request');
           this.loading = false;
@@ -207,6 +202,7 @@ export class MainComponent implements OnInit, OnDestroy {
       method: HttpMethod.POST,
       requestBody
     };
+    console.log('Sending API POST request ' + url );
     var asyncResult :any ;
     asyncResult = this.restService.call(request).subscribe({
       next: result => {
@@ -239,6 +235,7 @@ export class MainComponent implements OnInit, OnDestroy {
       method: HttpMethod.DELETE,
       requestBody : null
     };
+    console.log('Sending API DELETE request ' + deleteUrl);
     this.restService.call(request).subscribe({
       next: result => {
         this.loading = false;
