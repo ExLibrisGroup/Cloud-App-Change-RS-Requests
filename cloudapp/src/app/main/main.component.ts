@@ -65,6 +65,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   onPageLoad = (pageInfo: PageInfo) => {
+    this.apiResult = {};
     this.loading = false;
     this.isChangeable = false;
     this.hasChangeResults = false;
@@ -148,9 +149,22 @@ export class MainComponent implements OnInit, OnDestroy {
     value['citation_type']['value'] = 'CR';
     this.changeLog = this.changeLog + "BK -> CR\n";
     this.changeLog = this.changeLog + "Creating new request ...\n";
+    
+    this.changeLog = this.changeLog + "Title: "+value['title']+' -> Article\\Chapter title\n';
+    value['chapter_title'] = "";
+
+    if( value['chapter_author']){
+      value['author'] = value['chapter_author'];
+      this.changeLog = this.changeLog + "Chapter author: "+value['chapter_author']+' -> Author\n';
+    }
     value['issn'] = value['isbn'];
     value['isbn'] = "";
-    this.changeLog = this.changeLog + "isbn: "+value['issn']+" -> issn\n";
+    this.changeLog = this.changeLog + "ISBN: "+value['issn']+" -> ISSN\n";
+    
+    if(value['chapter']){
+      this.changeLog = this.changeLog + "Chapter number: "+value['chapter']+' -> Chapter\n';
+    }
+
     //volume & issue split
     if( value['volume'].includes(",")){
       this.changeLog = this.changeLog + "volume: "+value['volume']+" -> volume: ";
@@ -159,29 +173,37 @@ export class MainComponent implements OnInit, OnDestroy {
       value['volume'] = volume.length > 1 ? volume.slice(0, -1).join(',') : volume+'';
       this.changeLog = this.changeLog + value['volume'] +" & issue: " + value['issue']+ "\n";
     }
-    this.changeLog = this.changeLog + "Title: "+value['title']+' -> Article\\Chapter title\n';
-    value['journal_title'] = value['chapter_title'];
-    value['chapter_title'] = "";
-    this.changeLog = this.changeLog + "Chapter title: "+value['journal_title']+" -> Journal title\n";
+
+    if( value['part']){
+      value['volume'] = value['volume']  + " " + value['part'];
+      this.changeLog = this.changeLog + "Part: "+value['part']+" -> Volume: " +value['volume']+ "\n";
+    }
+    
   }
 
   changeToBook(value: any) {
     value['citation_type']['value'] = 'BK';
     this.changeLog = this.changeLog + "CR -> BK\n";
     this.changeLog = this.changeLog + "Creating new request ...\n";
+    
+    this.changeLog = this.changeLog + "Article\\Chapter Title: "+value['title']+' -> Title\n';
+    value['journal_title'] = "";
+
     value['isbn'] = value['issn'];
     value['issn'] = "";
-    this.changeLog = this.changeLog + "issn: "+value['isbn']+" -> isbn\n";
+    this.changeLog = this.changeLog + "ISSN: "+value['isbn']+" -> ISBN\n";
+
     //volume & issue join
     if( value['issue']){
       this.changeLog = this.changeLog + "volume: "+value['volume']+" & issue: " + value['issue']+" -> volume: ";
       value['volume'] = value['volume'] + ", " + value['issue'];
       this.changeLog = this.changeLog + value['volume'] + "\n";
     }
-    this.changeLog = this.changeLog + "Article\\Chapter Title: "+value['title']+' -> Title\n';
-    value['chapter_title'] = value['journal_title'];
-    value['journal_title'] = "";
-    this.changeLog = this.changeLog + "Journal title: "+value['chapter_title']+" -> Chapter title\n";
+
+    if(value['chapter']){
+      this.changeLog = this.changeLog + "Chapter: "+value['chapter']+' -> Chapter number\n';
+    }
+
   }
 
   refreshPage = () => {
