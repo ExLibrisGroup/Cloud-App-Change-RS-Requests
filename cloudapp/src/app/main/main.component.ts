@@ -21,6 +21,7 @@ export class MainComponent implements OnInit, OnDestroy {
   citationTypeCode:string;
   hasRSRequest : boolean = false;
   hasChangeResults : boolean = false;
+  chooseFromList : boolean = false;
   isChangeable :boolean = false;
   changeLog : string;
   link: string;
@@ -69,34 +70,41 @@ export class MainComponent implements OnInit, OnDestroy {
     this.loading = false;
     this.isChangeable = false;
     this.hasChangeResults = false;
+    this.chooseFromList = false;
     this.changeLog = "";
     this.pageEntities = pageInfo.entities;
-    
-    if ((pageInfo.entities || []).length == 1 ) {
-      const entity = pageInfo.entities[0];
-      if(entity.type === 'BORROWING_REQUEST'){
-        this.hasRSRequest = true;
-        this.link = entity.link;
-        console.log('Sending API GET request ' + this.link );
-        this.restService.call(entity.link).subscribe(result => {
-          this.apiResult = result;
-          this.citationTypeCode = result['citation_type']['value'];
-          if(result['status']['value'] === 'READY_TO_SEND' || result['status']['value'] === 'REQUEST_CREATED_BOR'){
-            this.isChangeable = true;
-          }
-        });
-       
-      }else{
-        this.hasRSRequest = false;
-      }
+    this.hasRSRequest = false;
+
+    console.log('choose From List - test 1' );
+    if ((this.pageEntities || []).length > 1 && this.pageEntities[0].type === 'BORROWING_REQUEST') {
+       //list of Borrowing Requests
+       console.log('choose From List ' + (this.pageEntities || []).length );
+       this.chooseFromList = true;
+    } else if ((this.pageEntities || []).length == 1  && this.pageEntities[0].type === 'BORROWING_REQUEST') {
+      this.onLoadEntity(pageInfo.entities[0]);
     } else {
-      this.hasRSRequest = false;
       this.apiResult = {empty : 'Demo'};
     }
   }
 
+  
+
+  onLoadEntity(entity : Entity){
+      this.hasRSRequest = true;
+      this.link = entity.link;
+      console.log('Sending API GET request ' + this.link );
+      this.restService.call(entity.link).subscribe(result => {
+        this.apiResult = result;
+        this.citationTypeCode = result['citation_type']['value'];
+        if(result['status']['value'] === 'READY_TO_SEND' || result['status']['value'] === 'REQUEST_CREATED_BOR'){
+          this.isChangeable = true;
+        }
+      });
+  }
+
+
   changeType(){
-      this.changeLog = "Log: \n\n";
+      this.changeLog = "<br>";
       this.loading = true; 
       this.hasChangeResults = true;
       const postBody = { ...this.apiResult }
@@ -107,7 +115,7 @@ export class MainComponent implements OnInit, OnDestroy {
       }else if(this.citationTypeCode === 'CR'){
         this.changeToBook(postBody);
       }
-      this.changeLog = this.changeLog + "\nDeleted old request (" + this.apiResult['request_id'] + ")\n";
+      this.changeLog = this.changeLog + "<br>Deleted old request (" + this.apiResult['request_id'] + ")<br>";
       console.log(this.changeLog);
       
 
@@ -147,61 +155,61 @@ export class MainComponent implements OnInit, OnDestroy {
 
   changeToArticle(value: any) {
     value['citation_type']['value'] = 'CR';
-    this.changeLog = this.changeLog + "BK -> CR\n";
-    this.changeLog = this.changeLog + "Creating new request ...\n";
+    this.changeLog = this.changeLog + "BK -> CR<br>";
+    this.changeLog = this.changeLog + "Creating new request ...<br>";
     
-    this.changeLog = this.changeLog + "Title: "+value['title']+' -> Article\\Chapter title\n';
+    this.changeLog = this.changeLog + "<b>Title:</b> "+value['title']+' -> <b>Article\\Chapter title</b><br>';
     value['chapter_title'] = "";
 
     if( value['chapter_author']){
       value['author'] = value['chapter_author'];
-      this.changeLog = this.changeLog + "Chapter author: "+value['chapter_author']+' -> Author\n';
+      this.changeLog = this.changeLog + "<b>Chapter author:</b> "+value['chapter_author']+' -> <b>Author</b><br>';
     }
     value['issn'] = value['isbn'];
     value['isbn'] = "";
-    this.changeLog = this.changeLog + "ISBN: "+value['issn']+" -> ISSN\n";
+    this.changeLog = this.changeLog + "<b>ISBN: </b>"+value['issn']+" -> <b>ISSN</b><br>";
     
     if(value['chapter']){
-      this.changeLog = this.changeLog + "Chapter number: "+value['chapter']+' -> Chapter\n';
+      this.changeLog = this.changeLog + "<b>Chapter number:</b> "+value['chapter']+' -> <b>Chapter</b><br>';
     }
 
     //volume & issue split
     if( value['volume'].includes(",")){
-      this.changeLog = this.changeLog + "volume: "+value['volume']+" -> volume: ";
+      this.changeLog = this.changeLog + "<b>volume: </b>"+value['volume']+" -> <b>volume: </b>";
       var volume: string[] = value['volume'].split(",");
       value['issue'] = volume.length > 1 ? (volume.slice(-1)+'').trim() : "" ;
       value['volume'] = volume.length > 1 ? volume.slice(0, -1).join(',') : volume+'';
-      this.changeLog = this.changeLog + value['volume'] +" & issue: " + value['issue']+ "\n";
+      this.changeLog = this.changeLog + value['volume'] +" & <b>issue: </b>" + value['issue']+ "<br>";
     }
 
     if( value['part']){
       value['volume'] = value['volume']  + " " + value['part'];
-      this.changeLog = this.changeLog + "Part: "+value['part']+" -> Volume: " +value['volume']+ "\n";
+      this.changeLog = this.changeLog + "<b>Part: </b>"+value['part']+" -> <b>Volume: <b>" +value['volume']+ "<br>";
     }
     
   }
 
   changeToBook(value: any) {
     value['citation_type']['value'] = 'BK';
-    this.changeLog = this.changeLog + "CR -> BK\n";
-    this.changeLog = this.changeLog + "Creating new request ...\n";
+    this.changeLog = this.changeLog + "CR -> BK<br>";
+    this.changeLog = this.changeLog + "Creating new request ...<br>";
     
-    this.changeLog = this.changeLog + "Article\\Chapter Title: "+value['title']+' -> Title\n';
+    this.changeLog = this.changeLog + "<b>Article\\Chapter Title:</b> "+value['title']+' -> <b>Title</b><br>';
     value['journal_title'] = "";
 
     value['isbn'] = value['issn'];
     value['issn'] = "";
-    this.changeLog = this.changeLog + "ISSN: "+value['isbn']+" -> ISBN\n";
+    this.changeLog = this.changeLog + "<b>ISSN:</b> "+value['isbn']+" -> <b>ISBN</b><br>";
 
     //volume & issue join
     if( value['issue']){
-      this.changeLog = this.changeLog + "volume: "+value['volume']+" & issue: " + value['issue']+" -> volume: ";
+      this.changeLog = this.changeLog + "<b>volume: </b>"+value['volume']+" & <b>issue: </b>" + value['issue']+" -> <b>volume: </b>";
       value['volume'] = value['volume'] + ", " + value['issue'];
-      this.changeLog = this.changeLog + value['volume'] + "\n";
+      this.changeLog = this.changeLog + value['volume'] + "<br>";
     }
 
     if(value['chapter']){
-      this.changeLog = this.changeLog + "Chapter: "+value['chapter']+' -> Chapter number\n';
+      this.changeLog = this.changeLog + "<b>Chapter:</b> "+value['chapter']+' -> <b>Chapter number</b><br>';
     }
 
   }
@@ -209,7 +217,6 @@ export class MainComponent implements OnInit, OnDestroy {
   refreshPage = () => {
     this.loading = true;
     this.eventsService.refreshPage().subscribe({
-      next: () => this.toastr.success('Success!'),
       error: e => {
         console.error(e);
         this.toastr.error('Failed to refresh page');
@@ -241,11 +248,14 @@ export class MainComponent implements OnInit, OnDestroy {
       error: (e: RestErrorResponse) => {
         this.apiResult = {};
         console.log("Failed to create resource sharing request");
-        this.toastr.error('Failed to create resource sharing request');
+        console.log(e.message);
         console.error(e);
-        this.changeLog = this.changeLog.replace('Creating new request ...','Failed creating new request');
+        this.changeLog = this.changeLog.replace('Creating new request ...','Failed creating new request<br>' + e.message);
+        this.toastr.error(this.changeLog,'Failed to create resource sharing request',{positionClass: 'toast-top-center'});
         this.hasApiResult = true;
         this.loading = false;
+        this.hasChangeResults = false;
+        this.refreshPage();
       }
       
     });
@@ -262,7 +272,10 @@ export class MainComponent implements OnInit, OnDestroy {
       next: result => {
         this.loading = false;
         console.log("Success deleting " + deleteUrl); 
-        this.toastr.success('Success changing types!');
+        this.toastr.success(this.changeLog,'Success changing types!',{positionClass: 'toast-top-center'});
+        if(this.chooseFromList){
+          this.refreshPage();
+        }
       },
       error: (e: RestErrorResponse) => {
         this.apiResult = {};

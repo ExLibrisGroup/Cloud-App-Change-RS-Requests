@@ -9,3 +9,11 @@
 @mixin global-styles {
     /* Add global styles here */
 }
+
+.toast-top-center {
+    top: 30px;
+  }
+  
+.toast-container.toast-top-center .ngx-toastr {
+    width: 100%;
+} 

@@ -1,7 +1,28 @@
 <section>
+  <h1>Resource Sharing Request Type Toggler</h1>
+</section>
+
+<section *ngIf="!hasRSRequest && !chooseFromList">
+  <p>
+    To use this app, navigate to the Borrowing Requests page in Alma. 
+    From there is will be possible to change a Book Request to an Article Request and vice versa.
+  </p>
+</section>
+
+<section *ngIf="chooseFromList" >
+<mat-form-field>
+  <mat-label>Select a resource sharing request</mat-label>
+  <mat-select (selectionChange)="onLoadEntity($event.value)">
+    <mat-option *ngFor="let entity of pageEntities" [value]="entity">
+      {{entity.id}} - {{entity.description}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+</section>
+
+<section *ngIf="hasRSRequest" >
   <mat-card class="example-card grey-box align-center">
-      <mat-card-title *ngIf="hasRSRequest && isChangeable">Detected request for {{citationTypeCode ==='BK' ? 'a' : 'an'}} {{ citationTypeMap.get(citationTypeCode) }}</mat-card-title>
-      <mat-card-title *ngIf="!hasRSRequest">Select a resource sharing request</mat-card-title>
+      <mat-card-title *ngIf="hasRSRequest && isChangeable">Detected request for {{citationTypeCode ==='BK' ? 'a' : 'an'}} {{ citationTypeMap.get(citationTypeCode) }} - "{{apiResult['title']}}"</mat-card-title>
       <mat-card-title *ngIf="hasRSRequest && !isChangeable && apiResult['status']">Resource sharing request status is  <br/> `{{apiResult['status']['desc'] }}` <br/> can't be changed</mat-card-title>   
   </mat-card>
 </section>
@@ -20,14 +41,6 @@
   </mat-card>
 </section>
 
-
-<section>
-  <mat-card class="example-card" *ngIf="hasChangeResults">
-    <mat-card-content>
-      <pre>{{ changeLog}}</pre>
-    </mat-card-content>
-  </mat-card>
-</section>
 
 
 
