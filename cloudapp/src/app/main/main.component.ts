@@ -250,7 +250,8 @@ export class MainComponent implements OnInit, OnDestroy {
         console.log("Failed to create resource sharing request");
         console.log(e.message);
         console.error(e);
-        this.changeLog = this.changeLog.replace('Creating new request ...','Failed creating new request<br>' + e.message);
+        this.changeLog = this.changeLog.replace('Deleted old request','Not deleting old request');
+        this.changeLog = this.changeLog.replace('Creating new request ...','Failed creating new request<br>' + e.message + '<br>');
         this.toastr.error(this.changeLog,'Failed to create resource sharing request',{positionClass: 'toast-top-center'});
         this.hasApiResult = true;
         this.loading = false;
@@ -280,7 +281,7 @@ export class MainComponent implements OnInit, OnDestroy {
       error: (e: RestErrorResponse) => {
         this.apiResult = {};
         console.log("Failed to delete resource sharing request");
-        this.toastr.error('Failed to delete resource sharing request');
+        this.toastr.error(this.changeLog,'Failed to delete resource sharing request <br>' +e.message + '<br>',{positionClass: 'toast-top-center'});
         console.error(e);
         this.loading = false;
       }
