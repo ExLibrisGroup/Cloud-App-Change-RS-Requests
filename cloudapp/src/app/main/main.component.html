@@ -1,15 +1,24 @@
-<section>
-  <h1>Resource Sharing Request Type Toggler</h1>
-</section>
-
-<section *ngIf="!hasRSRequest && !chooseFromList">
+<div *ngIf="!hasRSRequest && !chooseFromList">
   <p>
     To use this app, navigate to the Borrowing Requests page in Alma. 
     From there is will be possible to change a Book Request to an Article Request and vice versa.
   </p>
-</section>
+</div>
+<div class="eca-actions" *ngIf="hasRSRequest">
+  <button mat-flat-button color="primary" (click)="changeType()" [disabled]="!isChangeable">
+    Change to {{citationTypeCode ==='BK' ? 'an' : 'a'}} {{ citationTypeMap.get(bookToArticalSwap.get(citationTypeCode)) }} request
+  </button>
+</div>
 
-<section *ngIf="chooseFromList" >
+<div class="align-center">
+  <h2 [innerHTML]='title'></h2>
+</div>
+
+<div class="loading-shade" *ngIf="loading">
+  <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+</div>
+
+<div *ngIf="chooseFromList" >
 <mat-form-field>
   <mat-label>Select a resource sharing request</mat-label>
   <mat-select (selectionChange)="onLoadEntity($event.value)">
@@ -18,53 +27,5 @@
     </mat-option>
   </mat-select>
 </mat-form-field>
-</section>
+</div>
 
-<section *ngIf="hasRSRequest" >
-  <mat-card class="example-card grey-box align-center">
-      <mat-card-title *ngIf="hasRSRequest && isChangeable">Detected request for {{citationTypeCode ==='BK' ? 'a' : 'an'}} {{ citationTypeMap.get(citationTypeCode) }} - "{{apiResult['title']}}"</mat-card-title>
-      <mat-card-title *ngIf="hasRSRequest && !isChangeable && apiResult['status']">Resource sharing request status is  <br/> `{{apiResult['status']['desc'] }}` <br/> can't be changed</mat-card-title>   
-  </mat-card>
-</section>
-
-<section *ngIf="hasRSRequest && isChangeable ">
-  <mat-card class="mat-elevation-z align-center">
-    <br>
-      <mat-card-actions>
-        <button  
-          type="button" class="padding-15-40"
-          mat-raised-button color="secondary" 
-          (click)="changeType()" [disabled]="loading || hasChangeResults"
-          >Change to {{citationTypeCode ==='BK' ? 'an' : 'a'}} {{ citationTypeMap.get(bookToArticalSwap.get(citationTypeCode)) }} request</button>
-      </mat-card-actions>
-    <br>
-  </mat-card>
-</section>
-
-
-
-
-<!-- Debug info - for exl_impl -->
-<div *ngIf="showDebugWin">
-  <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-  <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-  <hr/>
-  Debug:
-  <section>
-    <mat-card class="example-card">
-      <mat-card-header>
-        <mat-card-title>Page Entity</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <pre>{{ pageEntities | json }}</pre>
-      </mat-card-content>
-    </mat-card>
-  </section>
-  <section>
-    <mat-card class="example-card">
-      <mat-card-content>
-        <pre>{{ apiResult | json}}</pre>
-      </mat-card-content>
-    </mat-card>
-  </section>
-  </div>
