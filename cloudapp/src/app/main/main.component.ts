@@ -27,12 +27,12 @@ export class MainComponent implements OnInit, OnDestroy {
   hasApiResult: boolean = false;
   loading = false;
 
-  private bookToArticalSwap:Map<string, string> = new Map([
+  public bookToArticalSwap:Map<string, string> = new Map([
     ["BK", "CR"],
     ["CR", "BK"],
   ]);
 
-  private citationTypeMap:Map<string, string> = new Map([
+  public citationTypeMap:Map<string, string> = new Map([
     ["BK", "book"],
     ["CR", "article"],
   ]);
