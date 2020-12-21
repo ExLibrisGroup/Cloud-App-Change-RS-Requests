@@ -3,7 +3,7 @@
    "title": "Change RS Request Type",
    "description": "Changing a 'book request' to 'article request' and vice versa",
    "subtitle": "Allows changing a 'book request' to 'article request' and vice versa.",
-   "author": "Yehudit Adler",
+   "author": "Ex Libris",
    "entities": [
       "BORROWING_REQUEST"
    ],

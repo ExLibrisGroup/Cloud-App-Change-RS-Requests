@@ -116,7 +116,7 @@ export class MainComponent implements OnInit, OnDestroy {
       
 
       // call post request 
-      var url = this.link.split('/').slice(0, -1).join('/');
+      var url = this.link.split('/').slice(0, -1).join('/') + '?override_blocks=true';
       this.hasApiResult = false;
       this.sendCreateRequest({ url, requestBody: postBody});
       // wait for post
