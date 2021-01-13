@@ -255,6 +255,8 @@ export class MainComponent implements OnInit, OnDestroy {
         this.alert.success('<b>Success changing types!</b>\n' +this.changeLog, {autoClose: false,keepAfterRouteChange: true});
         if(this.chooseFromList){
           this.refreshPage();
+        }else{
+          this.backPage();
         }
       },
       error: (e: RestErrorResponse) => {
@@ -277,6 +279,17 @@ export class MainComponent implements OnInit, OnDestroy {
       error: e => {
         console.error(e);
         this.alert.error('Failed to refresh page');
+      },
+      complete: () => this.loading = false
+    });
+  }
+
+  backPage = () => {
+    this.loading = true;
+    this.eventsService.back().subscribe({
+      error: e => {
+        console.error(e);
+        this.alert.error('Failed to go back');
       },
       complete: () => this.loading = false
     });
