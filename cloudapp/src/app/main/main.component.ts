@@ -129,7 +129,7 @@ export class MainComponent implements OnInit, OnDestroy {
           //delete the old request
           console.log('after hasApiResult');
           console.log('delete the old request');
-          this.sendDeleteRequest(this.link + '?remove_request=true');
+          this.sendDeleteRequest(this.link + '?remove_request=true&notify_user=false');
         }else{
           console.log('not deleting old request');
           this.loading = false;
