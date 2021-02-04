@@ -1,0 +1,16 @@
+<div class="eca-actions">
+    <button mat-flat-button color="secondary" [routerLink]="['/']"><mat-icon>arrow_back</mat-icon>Back</button>
+    <button mat-flat-button color="primary" (click)="save()" [disabled]="!(dirty)">Save</button>
+  </div>
+  <div class="loading-shade" *ngIf="saving">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+  </div>
+  <div *ngIf="settings">
+    <div *ngFor="let setting of settings['settings']">
+      <h2 class="example-margin">{{setting['name']}}</h2>
+      <section class="settings-section" *ngFor="let field of setting['fields']">
+        <mat-checkbox [checked]="field.change" (change)="changeValue(setting['name'],field.description)" labelPosition="after">{{field.description}}</mat-checkbox>
+      </section>
+    </div>
+    
+  </div>

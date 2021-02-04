@@ -8,7 +8,8 @@
       "BORROWING_REQUEST"
    ],
    "pages": {
-      "help": "/#/help"
+      "help": "/#/help",
+      "settings": "/#/settings"
    },
    "icon": {
       "type": "font",

@@ -2,8 +2,9 @@ import { Subscription } from 'rxjs';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
   CloudAppRestService, CloudAppEventsService, Request, HttpMethod,
-  Entity, PageInfo, RestErrorResponse, AlertService
+  Entity, PageInfo, RestErrorResponse, AlertService, CloudAppSettingsService
 } from '@exlibris/exl-cloudapp-angular-lib';
+import { Settings } from '../models/settings';
 
 @Component({
   selector: 'app-main',
@@ -14,6 +15,9 @@ export class MainComponent implements OnInit, OnDestroy {
 
   private pageLoad$: Subscription;
   pageEntities: Entity[];
+  settings: Settings;
+  changeToBookFields : Map<string,boolean> = new Map<string,boolean>();
+  changeToArticleFields : Map<string,boolean> = new Map<string,boolean>();
 
   private _apiResult: any;
   citationTypeCode:string;
@@ -37,10 +41,33 @@ export class MainComponent implements OnInit, OnDestroy {
     ["CR", "article"],
   ]);
 
-  constructor(private restService: CloudAppRestService,
-    private eventsService: CloudAppEventsService, private alert : AlertService) { }
+  constructor(
+    private restService: CloudAppRestService,
+    private settingsService: CloudAppSettingsService,
+    private eventsService: CloudAppEventsService, 
+    private alert : AlertService) { }
 
   ngOnInit() {
+    this.settingsService.get().subscribe(settings => {
+      this.settings = settings as Settings;
+      try{
+        this.settings['settings'];
+      }catch(e){
+        this.settings = new Settings();
+      }
+      for(let setting of this.settings['settings']){
+        if(setting['name'] == "Convert Book to a Article:"){
+          for(let field of setting['fields']){
+            this.changeToArticleFields.set(field.description,field.change);
+          }
+        }else if(setting['name'] == "Convert Article to a Book:"){
+          for(let field of setting['fields']){
+            this.changeToBookFields.set(field.description,field.change);
+          }
+        }
+      }
+    });
+    
     this.pageLoad$ = this.eventsService.onPageLoad(this.onPageLoad);
   }
 
@@ -67,13 +94,12 @@ export class MainComponent implements OnInit, OnDestroy {
     this.pageEntities = pageInfo.entities;
     this.hasRSRequest = false;
 
-    console.log('title' + this.title);
     if ((this.pageEntities || []).length > 1 && this.pageEntities[0].type === 'BORROWING_REQUEST') {
        //list of Borrowing Requests
        console.log('choose From List ' + (this.pageEntities || []).length );
        this.chooseFromList = true;
     } else if ((this.pageEntities || []).length == 1  && this.pageEntities[0].type === 'BORROWING_REQUEST') {
-      console.log('title' + this.title);
+      console.log('title ' + this.title);
       this.onLoadEntity(pageInfo.entities[0]);
     } 
   }
@@ -133,6 +159,11 @@ export class MainComponent implements OnInit, OnDestroy {
         }else{
           console.log('not deleting old request');
           this.loading = false;
+          if(this.chooseFromList){
+            this.refreshPage();
+          }else{
+            this.backPage();
+          }
         }
       })();
   }
@@ -150,37 +181,60 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   changeToArticle(value: any) {
+    
     value['citation_type']['value'] = 'CR';
     this.changeLog = this.changeLog + "Creating new request ...<br>";
-    this.changeLog = this.changeLog + "-BK -> CR<br>";
+    this.changeLog = this.changeLog + "- BK -> CR<br>";
 
-    this.changeLog = this.changeLog + "-<b>Title:</b> "+value['title']+' -> <b>Article\\Chapter title</b><br>';
+    if(this.changeToArticleFields.get("Title -> Journal title")){
+      this.changeLog = this.changeLog + "- <b>Title:</b> "+value['title']+' -> <b>Journal title</b><br>';
+      value['journal_title'] = value['title'];
+    }
+    if(this.changeToArticleFields.get("Chapter title -> Article\\Chapter title")){
+      this.changeLog = this.changeLog + "- <b>Chapter title:</b> "+value['chapter_title']+' -> <b>Article\\Chapter title</b><br>';
+      value['title'] = value['chapter_title'];
+    }else if(this.changeToArticleFields.get("Title -> Article\\Chapter title")){
+      this.changeLog = this.changeLog + "- <b>Title:</b> "+value['title']+' -> <b>Article\\Chapter title</b><br>';
+    }else{
+      value['title'] ="";
+    }
     value['chapter_title'] = "";
 
-    if( value['chapter_author']){
-      value['author'] = value['chapter_author'];
-      this.changeLog = this.changeLog + "-<b>Chapter author:</b> "+value['chapter_author']+' -> <b>Author</b><br>';
+    if(this.changeToArticleFields.get("Chapter author -> Author")){
+      if( value['chapter_author']){
+        value['author'] = value['chapter_author'];
+        this.changeLog = this.changeLog + "- <b>Chapter author:</b> "+value['chapter_author']+' -> <b>Author</b><br>';
+      }
     }
-    value['issn'] = value['isbn'];
-    value['isbn'] = "";
-    this.changeLog = this.changeLog + "-<b>ISBN: </b>"+value['issn']+" -> <b>ISSN</b><br>";
-    
-    if(value['chapter']){
-      this.changeLog = this.changeLog + "-<b>Chapter number:</b> "+value['chapter']+' -> <b>Chapter</b><br>';
-    }
-
-    //volume & issue split
-    if( value['volume'].includes(",")){
-      this.changeLog = this.changeLog + "-<b>volume: </b>"+value['volume']+" -> <b>volume: </b>";
-      var volume: string[] = value['volume'].split(",");
-      value['issue'] = volume.length > 1 ? (volume.slice(-1)+'').trim() : "" ;
-      value['volume'] = volume.length > 1 ? volume.slice(0, -1).join(',') : volume+'';
-      this.changeLog = this.changeLog + value['volume'] +" & <b>issue: </b>" + value['issue']+ "<br>";
+    if(this.changeToArticleFields.get("ISBN -> ISSN")){
+      value['issn'] = value['isbn'];
+      value['isbn'] = "";
+      this.changeLog = this.changeLog + "- <b>ISBN: </b>"+value['issn']+" -> <b>ISSN</b><br>";
     }
 
-    if( value['part']){
-      value['volume'] = value['volume']  + " " + value['part'];
-      this.changeLog = this.changeLog + "-<b>Part: </b>"+value['part']+" -> <b>Volume: </b>" +value['volume']+ "<br>";
+    if(this.changeToArticleFields.get("Chapter number -> Chapter")){
+      if(value['chapter']){
+        this.changeLog = this.changeLog + "- <b>Chapter number:</b> "+value['chapter']+' -> <b>Chapter</b><br>';
+      }
+    }else{
+      value['chapter'] ="";
+    }
+
+    if(this.changeToArticleFields.get("Volume (split by comma) -> Volume & Issue")){
+      //volume & issue split
+      if( value['volume'].includes(",")){
+        this.changeLog = this.changeLog + "- <b>volume: </b>"+value['volume']+" -> <b>volume: </b>";
+        var volume: string[] = value['volume'].split(",");
+        value['issue'] = volume.length > 1 ? (volume.slice(-1)+'').trim() : "" ;
+        value['volume'] = volume.length > 1 ? volume.slice(0, -1).join(',') : volume+'';
+        this.changeLog = this.changeLog + value['volume'] +" & <b>issue: </b>" + value['issue']+ "<br>";
+      }
+    }
+    if(this.changeToArticleFields.get("Part -> (append) Volume")){
+      if( value['part']){
+        value['volume'] = value['volume']  + " " + value['part'];
+        this.changeLog = this.changeLog + "- <b>Part: </b>"+value['part']+" -> <b>Volume: </b>" +value['volume']+ "<br>";
+      }
     }
     
   }
@@ -189,24 +243,33 @@ export class MainComponent implements OnInit, OnDestroy {
     value['citation_type']['value'] = 'BK';
 
     this.changeLog = this.changeLog + "Creating new request ...<br>";
-    this.changeLog = this.changeLog + "-CR -> BK<br>";
-    
-    this.changeLog = this.changeLog + "-<b>Article\\Chapter Title:</b> "+value['title']+' -> <b>Title</b><br>';
-    value['journal_title'] = "";
+    this.changeLog = this.changeLog + "- CR -> BK<br>";
 
-    value['isbn'] = value['issn'];
-    value['issn'] = "";
-    this.changeLog = this.changeLog + "-<b>ISSN:</b> "+value['isbn']+" -> <b>ISBN</b><br>";
-
-    //volume & issue join
-    if( value['issue']){
-      this.changeLog = this.changeLog + "-<b>volume: </b>"+value['volume']+" & <b>issue: </b>" + value['issue']+" -> <b>volume: </b>";
-      value['volume'] = value['volume'] + ", " + value['issue'];
-      this.changeLog = this.changeLog + value['volume'] + "<br>";
+    if(this.changeToBookFields.get("Article\\Chapter title -> Title")){
+      this.changeLog = this.changeLog + "- <b>Article\\Chapter Title:</b> "+value['title']+' -> <b>Title</b><br>';
+    }else{
+      value['title'] = "";
     }
-
-    if(value['chapter']){
-      this.changeLog = this.changeLog + "-<b>Chapter:</b> "+value['chapter']+' -> <b>Chapter number</b><br>';
+    
+    if(this.changeToBookFields.get("ISSN -> ISBN")){
+      value['isbn'] = value['issn'];
+      value['issn'] = "";   
+      this.changeLog = this.changeLog + "- <b>ISSN:</b> "+value['isbn']+" -> <b>ISBN</b><br>";
+    }
+    if(this.changeToBookFields.get("Volume & Issue -> Volume(join with comma)")){
+      //volume & issue join
+      if( value['issue']){
+        this.changeLog = this.changeLog + "- <b>volume: </b>"+value['volume']+" & <b>issue: </b>" + value['issue']+" -> <b>volume: </b>";
+        value['volume'] = value['volume'] + ", " + value['issue'];
+        this.changeLog = this.changeLog + value['volume'] + "<br>";
+      }
+    }
+    if(this.changeToBookFields.get("Chapter -> Chapter number")){
+      if(value['chapter']){
+        this.changeLog = this.changeLog + "- <b>Chapter:</b> "+value['chapter']+' -> <b>Chapter number</b><br>';
+      }
+    }else{
+      value['chapter'] = "";
     }
 
   }
@@ -235,7 +298,7 @@ export class MainComponent implements OnInit, OnDestroy {
         this.changeLog = this.changeLog.replace('Creating new request ...','<b>' + e.message + '</b><br>');
         this.alert.error('<b>Failed to create resource sharing request</b>' + this.changeLog, {autoClose: false,keepAfterRouteChange: true});
         this.title ="";
-        this.refreshPage();
+        this.hasApiResult = true
       }
       
     });
@@ -261,6 +324,7 @@ export class MainComponent implements OnInit, OnDestroy {
       },
       error: (e: RestErrorResponse) => {
         this.apiResult = {};
+        this.changeLog = this.changeLog.replace('Deleted old request','Failed deleting old request');
         console.log("Failed to delete resource sharing request");
         this.alert.error('<b>Failed to delete resource sharing request</b> <br>' +e.message + this.changeLog, {autoClose: false,keepAfterRouteChange: true});
         console.error(e);
