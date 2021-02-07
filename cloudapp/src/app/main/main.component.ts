@@ -50,9 +50,9 @@ export class MainComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.settingsService.get().subscribe(settings => {
       this.settings = settings as Settings;
-      try{
-        this.settings['settings'];
-      }catch(e){
+      if(this.settings['settings'] === undefined)
+      {
+        console.log('No Settings configured')
         this.settings = new Settings();
       }
       for(let setting of this.settings['settings']){
