@@ -178,6 +178,9 @@ export class MainComponent implements OnInit, OnDestroy {
     delete value['created_time'];
     delete value['last_modified_time'];
     delete value['user_request'];
+    if(value['agree_to_copyright_terms'] === false){
+      delete value['agree_to_copyright_terms'];
+    }
   }
 
   changeToArticle(value: any) {
