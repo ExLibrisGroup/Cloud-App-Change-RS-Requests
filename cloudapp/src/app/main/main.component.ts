@@ -250,6 +250,10 @@ export class MainComponent implements OnInit, OnDestroy {
 
     if(this.changeToBookFields.get("Article\\Chapter title -> Title")){
       this.changeLog = this.changeLog + "- <b>Article\\Chapter Title:</b> "+value['title']+' -> <b>Title</b><br>';
+      if (value['title'] && value['journal_title']) {
+        // If there is also a journal_title we don't want to lose it - we'll concat it. https://github.com/ExLibrisGroup/Cloud-App-Change-RS-Requests/issues/5
+        value['title'] = value['title'] + " /" + value['journal_title'];
+      }
     }else{
       value['title'] = "";
     }
