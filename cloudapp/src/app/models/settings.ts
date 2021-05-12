@@ -24,6 +24,7 @@ export class Settings {
         {name :"Convert Article to a Book:", 
         fields : [
             {description :"Article\\Chapter title -> Title",change :true },
+            {description :"Journal title -> Title", change : false},
             {description :"ISSN -> ISBN",  change :true},
             {description :"Volume & Issue -> Volume(join with comma)",  change :true},
             {description :"Chapter -> Chapter number", change : true}

@@ -55,4 +55,16 @@ export class SettingsComponent implements OnInit {
     );
   }
 
+  remove() {
+    this.saving = true;
+    console.log("App removing settings...");
+     this.settingsService.remove().subscribe( response => {
+       this.alert.success('Settings removed. Please reopen the App.');
+       console.log("removed");
+     },
+     err => this.alert.error(err.message),
+     ()  => this.saving = false
+    );
+  }
+
 }
