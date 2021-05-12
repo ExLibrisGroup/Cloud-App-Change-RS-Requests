@@ -257,7 +257,14 @@ export class MainComponent implements OnInit, OnDestroy {
     }else{
       value['title'] = "";
     }
-    
+
+    if(this.changeToBookFields.get("Journal title -> Title")){
+      if(value['journal_title']){
+        value['title'] = value['journal_title'];
+        this.changeLog = this.changeLog + "- <b>Journal title:</b> "+value['journal_title']+' -> <b>Title</b><br>';
+      }
+    }
+   
     if(this.changeToBookFields.get("ISSN -> ISBN")){
       value['isbn'] = value['issn'];
       value['issn'] = "";   

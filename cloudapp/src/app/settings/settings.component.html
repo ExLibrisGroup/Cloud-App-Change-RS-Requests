@@ -1,5 +1,6 @@
 <div class="eca-actions">
     <button mat-flat-button color="secondary" [routerLink]="['/']"><mat-icon>arrow_back</mat-icon>Back</button>
+    <button mat-flat-button color="primary" (click)="remove()">Reset</button>
     <button mat-flat-button color="primary" (click)="save()" [disabled]="!(dirty)">Save</button>
   </div>
   <div class="loading-shade" *ngIf="saving">
