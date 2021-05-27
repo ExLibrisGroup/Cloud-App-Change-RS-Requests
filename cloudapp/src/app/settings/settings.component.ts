@@ -22,10 +22,20 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit() {
     this.settingsService.get().subscribe( settings => {
-      console.log(settings);
+      console.log("ngOnInit: ",settings);
+      if (settings.deleteAfterCreateNew===undefined) {
+        settings.deleteAfterCreateNew = true;
+      }
+      console.log("settings.deleteAfterCreateNew: ",settings.deleteAfterCreateNew);
       this.settings = Object.assign(new Settings(), settings);
     });
    
+  }
+
+  changeIfToDeleteOldReq(changeTo: boolean){
+    this.dirty = true;
+    console.log("changeTo",changeTo);
+    this.settings.deleteAfterCreateNew = changeTo;
   }
 
   changeValue(settingsName : string ,fieldKey : string) {
@@ -45,7 +55,7 @@ export class SettingsComponent implements OnInit {
 
   save() {
     this.saving = true;
-    console.log(this.settings);
+    console.log("this.settings:",this.settings);
     this.settingsService.set(this.settings).subscribe(
       response => {
         this.alert.success('Settings successfully saved.');

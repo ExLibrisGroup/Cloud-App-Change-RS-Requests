@@ -151,7 +151,7 @@ export class MainComponent implements OnInit, OnDestroy {
           console.log('before hasApiResult');
           await this.delay(1000);
         }
-        if (this.apiResult && Object.keys(this.apiResult).length > 0) {//no error
+        if (this.settings.deleteAfterCreateNew && this.apiResult && Object.keys(this.apiResult).length > 0) {//no error
           //delete the old request
           console.log('after hasApiResult');
           console.log('delete the old request');

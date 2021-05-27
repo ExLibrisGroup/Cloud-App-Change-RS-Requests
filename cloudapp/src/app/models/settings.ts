@@ -9,6 +9,7 @@ export class ChangeTypes {
 }
   
 export class Settings {
+    deleteAfterCreateNew: boolean;
     settings: Array<ChangeTypes> = [
         {name : "Convert Book to a Article:",
         fields : [
