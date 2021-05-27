@@ -7,6 +7,11 @@
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
   </div>
   <div *ngIf="settings">
+    <h2 class="example-margin">General Settings</h2>
+    <section class="settings-section">
+      <mat-checkbox [checked]="settings.deleteAfterCreateNew" (change)="changeIfToDeleteOldReq(!settings.deleteAfterCreateNew)">Delete old requests after creating the new one</mat-checkbox>
+    </section>
+
     <div *ngFor="let setting of settings['settings']">
       <h2 class="example-margin">{{setting['name']}}</h2>
       <section class="settings-section" *ngFor="let field of setting['fields']">
