@@ -55,6 +55,9 @@ export class MainComponent implements OnInit, OnDestroy {
         console.log('No Settings configured')
         this.settings = new Settings();
       }
+      if(this.settings['deleteAfterCreateNew'] === undefined){
+        this.settings.deleteAfterCreateNew = true;
+      }
       for(let setting of this.settings['settings']){
         if(setting['name'] == "Convert Book to a Article:"){
           for(let field of setting['fields']){
@@ -137,8 +140,10 @@ export class MainComponent implements OnInit, OnDestroy {
       }else if(this.citationTypeCode === 'CR'){
         this.changeToBook(postBody);
       }
-      this.changeLog = this.changeLog + "<br>Deleted old request (" + this.apiResult['request_id'] + ")<br>";
-      console.log(this.changeLog);
+      if (this.settings.deleteAfterCreateNew){
+        this.changeLog = this.changeLog + "<br>Deleted old request (" + this.apiResult['request_id'] + ")<br>";
+        console.log(this.changeLog);
+      }
       
 
       // call post request 
