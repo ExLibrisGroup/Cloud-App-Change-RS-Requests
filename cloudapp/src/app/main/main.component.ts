@@ -253,6 +253,11 @@ export class MainComponent implements OnInit, OnDestroy {
     this.changeLog = this.changeLog + "Creating new request ...<br>";
     this.changeLog = this.changeLog + "- CR -> BK<br>";
 
+    if(this.changeToBookFields.get("Article\\Chapter title -> Chapter title")){
+      this.changeLog = this.changeLog + "- <b>Article\\Chapter title:</b> "+value['title']+' -> <b>Chapter title</b><br>';
+      value['chapter_title'] = value['title'];
+    }
+
     if(this.changeToBookFields.get("Article\\Chapter title -> Title")){
       this.changeLog = this.changeLog + "- <b>Article\\Chapter Title:</b> "+value['title']+' -> <b>Title</b><br>';
       if (value['title'] && value['journal_title']) {
@@ -262,7 +267,6 @@ export class MainComponent implements OnInit, OnDestroy {
     }else{
       value['title'] = "";
     }
-
     if(this.changeToBookFields.get("Journal title -> Title")){
       if(value['journal_title']){
         value['title'] = value['journal_title'];
@@ -289,6 +293,10 @@ export class MainComponent implements OnInit, OnDestroy {
       }
     }else{
       value['chapter'] = "";
+    }
+    if(this.changeToBookFields.get("DOI -> Other standard ID")){
+      this.changeLog = this.changeLog + "- <b>DOI:</b> "+value['doi']+' -> <b>Other standard ID</b><br>';
+      value['other_standard_id'] = value['doi'];
     }
 
   }
