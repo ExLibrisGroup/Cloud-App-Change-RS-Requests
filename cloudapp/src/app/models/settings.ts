@@ -26,6 +26,7 @@ export class Settings {
         fields : [
             {description :"Article\\Chapter title -> Title",change :true },
             {description :"Article\\Chapter title -> Chapter title",change :false },
+            {description :"Article\\Chapter title -> Chapter number",change :false },
             {description :"Journal title -> Title", change : false},
             {description :"ISSN -> ISBN",  change :true},
             {description :"Volume & Issue -> Volume(join with comma)",  change :true},

@@ -291,6 +291,9 @@ export class MainComponent implements OnInit, OnDestroy {
       if(value['chapter']){
         this.changeLog = this.changeLog + "- <b>Chapter:</b> "+value['chapter']+' -> <b>Chapter number</b><br>';
       }
+    }else if(this.changeToBookFields.get("Article\\Chapter title -> Chapter number")){
+        this.changeLog = this.changeLog + "- <b>Article\\Chapter Title:</b> "+value['title']+' -> <b>Chapter number</b><br>';
+        value['chapter'] = value['title'];
     }else{
       value['chapter'] = "";
     }
