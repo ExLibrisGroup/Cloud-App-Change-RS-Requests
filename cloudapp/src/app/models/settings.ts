@@ -19,6 +19,7 @@ export class Settings {
             {description :"Chapter author -> Author",  change :true},
             {description :"ISBN -> ISSN",  change :true},
             {description :"Chapter number -> Chapter", change : true},
+            {description :"Chapter number -> Article\\Chapter title", change : false},
             {description :"Volume (split by comma) -> Volume & Issue",  change :true},
             {description :"Part -> (append) Volume",  change :true}
         ]},

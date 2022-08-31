@@ -203,7 +203,10 @@ export class MainComponent implements OnInit, OnDestroy {
       value['title'] = value['chapter_title'];
     }else if(this.changeToArticleFields.get("Title -> Article\\Chapter title")){
       this.changeLog = this.changeLog + "- <b>Title:</b> "+value['title']+' -> <b>Article\\Chapter title</b><br>';
-    }else{
+    }else if(this.changeToArticleFields.get("Chapter number -> Article\\Chapter title")){
+      this.changeLog = this.changeLog + "- <b>Chapter number:</b> "+value['chapter']+' -> <b>Article\\Chapter title</b><br>';
+      value['title'] = value['chapter'];
+    }else {
       value['title'] ="";
     }
     value['chapter_title'] = "";
@@ -224,7 +227,7 @@ export class MainComponent implements OnInit, OnDestroy {
       if(value['chapter']){
         this.changeLog = this.changeLog + "- <b>Chapter number:</b> "+value['chapter']+' -> <b>Chapter</b><br>';
       }
-    }else{
+    }else if(!this.changeToArticleFields.get("Chapter number -> Article\\Chapter title")){
       value['chapter'] ="";
     }
 
@@ -252,6 +255,17 @@ export class MainComponent implements OnInit, OnDestroy {
 
     this.changeLog = this.changeLog + "Creating new request ...<br>";
     this.changeLog = this.changeLog + "- CR -> BK<br>";
+
+    if(this.changeToBookFields.get("Chapter -> Chapter number")){
+      if(value['chapter']){
+        this.changeLog = this.changeLog + "- <b>Chapter:</b> "+value['chapter']+' -> <b>Chapter number</b><br>';
+      }
+    }else if(this.changeToBookFields.get("Article\\Chapter title -> Chapter number")){
+        this.changeLog = this.changeLog + "- <b>Article\\Chapter Title:</b> "+value['title']+' -> <b>Chapter number</b><br>';
+        value['chapter'] = value['title'];
+    }else{
+      value['chapter'] = "";
+    }
 
     if(this.changeToBookFields.get("Article\\Chapter title -> Chapter title")){
       this.changeLog = this.changeLog + "- <b>Article\\Chapter title:</b> "+value['title']+' -> <b>Chapter title</b><br>';
@@ -287,16 +301,7 @@ export class MainComponent implements OnInit, OnDestroy {
         this.changeLog = this.changeLog + value['volume'] + "<br>";
       }
     }
-    if(this.changeToBookFields.get("Chapter -> Chapter number")){
-      if(value['chapter']){
-        this.changeLog = this.changeLog + "- <b>Chapter:</b> "+value['chapter']+' -> <b>Chapter number</b><br>';
-      }
-    }else if(this.changeToBookFields.get("Article\\Chapter title -> Chapter number")){
-        this.changeLog = this.changeLog + "- <b>Article\\Chapter Title:</b> "+value['title']+' -> <b>Chapter number</b><br>';
-        value['chapter'] = value['title'];
-    }else{
-      value['chapter'] = "";
-    }
+    
     if(this.changeToBookFields.get("DOI -> Other standard ID")){
       this.changeLog = this.changeLog + "- <b>DOI:</b> "+value['doi']+' -> <b>Other standard ID</b><br>';
       value['other_standard_id'] = value['doi'];
